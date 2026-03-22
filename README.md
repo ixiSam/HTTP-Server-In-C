@@ -1,6 +1,6 @@
-# HTTP-Server-In-C-With-Winsock2
+# HTTP-Server-In-C-
 
-A simple and lightweight HTTP server written in C using **Winsock2** for Windows.
+A simple and lightweight HTTP server written in C.
 
 ## Features
 
@@ -13,28 +13,27 @@ A simple and lightweight HTTP server written in C using **Winsock2** for Windows
 
 ## Usage
 
-1. Compile the project using `gcc`:
+Compile on Linux:
 
-   ```bash
-   gcc src/main.c src/server.c -o server.exe -lws2_32
-   ```
+```bash
+gcc -Wall -Wextra -pedantic src/main.c src/server.c -o server
+./server
+```
 
-2. Run the server:
+Compile on Windows with MinGW:
 
-   ```bash
-   ./server.exe
-   ```
+```bash
+gcc -Wall -Wextra -pedantic src/main.c src/server.c -o server -lws2_32
+server.exe
+```
 
-3. Connect to the server using `localhost:8000` or `ncat`:
-
-   ```bash
-   ncat 127.0.0.1 8000
-   ```
+Then open `http://localhost:8000` in a browser or use `curl http://127.0.0.1:8000`.
 
 ## Notes
 
-- This server is **minimalist** and not intended for production use.
-- Designed for learning purposes to demonstrate Winsock2 TCP server functionality.
+- This server is minimal and intended for learning, not production use.
+- It currently supports basic HTTP request receipt and sending a fixed HTML response.
+- The code now builds on both Windows and Linux.
 
 ## License
 

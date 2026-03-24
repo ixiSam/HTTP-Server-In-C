@@ -18,14 +18,14 @@ A simple and lightweight HTTP server written in C.
 Compile on Linux:
 
 ```bash
-gcc -Wall -Wextra -pedantic src/main.c src/server.c src/parser.c -o server
+gcc -Wall -Wextra -pedantic src/main.c src/socket_io.c src/http_response.c src/parser.c -o server
 ./server
 ```
 
 Compile on Windows with MinGW:
 
 ```bash
-gcc -Wall -Wextra -pedantic src/main.c src/server.c src/parser.c -o server -lws2_32
+gcc -Wall -Wextra -pedantic src/main.c src/socket_io.c src/http_response.c src/parser.c -o server -lws2_32
 server.exe
 ```
 

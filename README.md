@@ -8,7 +8,9 @@ A simple and lightweight HTTP server written in C.
 - Binding to a port
 - Listening for incoming connections
 - Accepting client connections
-- Receiving HTTP requests
+- Receiving HTTP requests into a buffer
+- HTTP request parsing (request line and headers)
+- Parse result handling (`200`, `400`, `413`, `505`, fallback `500`)
 - Sending HTTP responses
 
 ## Usage
@@ -16,14 +18,14 @@ A simple and lightweight HTTP server written in C.
 Compile on Linux:
 
 ```bash
-gcc -Wall -Wextra -pedantic src/main.c src/server.c -o server
+gcc -Wall -Wextra -pedantic src/main.c src/server.c src/parser.c -o server
 ./server
 ```
 
 Compile on Windows with MinGW:
 
 ```bash
-gcc -Wall -Wextra -pedantic src/main.c src/server.c -o server -lws2_32
+gcc -Wall -Wextra -pedantic src/main.c src/server.c src/parser.c -o server -lws2_32
 server.exe
 ```
 

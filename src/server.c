@@ -2,11 +2,30 @@
 #include <stdio.h>
 #include <string.h>
 
-static char buffer[BUFFER_SIZE];
-static char resp[] = "HTTP/1.0 200 OK\r\n"
-                     "Server: webserver-c\r\n"
-                     "Content-type: text/html\r\n\r\n"
-                     "<html>The server sent this HTML!</html>\r\n";
+static const char resp_200[] = "HTTP/1.0 200 OK\r\n"
+                               "Server: webserver-c\r\n"
+                               "Content-type: text/html\r\n\r\n"
+                               "<html>The server sent this HTML!</html>\r\n";
+
+static const char resp_400[] = "HTTP/1.0 400 Bad Request\r\n"
+                               "Server: webserver-c\r\n"
+                               "Content-type: text/plain\r\n\r\n"
+                               "Bad Request\r\n";
+
+static const char resp_413[] = "HTTP/1.0 413 Payload Too Large\r\n"
+                               "Server: webserver-c\r\n"
+                               "Content-type: text/plain\r\n\r\n"
+                               "Payload Too Large\r\n";
+
+static const char resp_505[] = "HTTP/1.0 505 HTTP Version Not Supported\r\n"
+                               "Server: webserver-c\r\n"
+                               "Content-type: text/plain\r\n\r\n"
+                               "HTTP Version Not Supported\r\n";
+
+static const char resp_500[] = "HTTP/1.0 500 Internal Server Error\r\n"
+                               "Server: webserver-c\r\n"
+                               "Content-type: text/plain\r\n\r\n"
+                               "Internal Server Error\r\n";
 
 int network_init(void) {
 #ifdef _WIN32
@@ -69,19 +88,50 @@ socket_t accept_connection(socket_t server_socket) {
     return client_socket;
 }
 
-int receive_data(socket_t client_socket) {
-    int bytes_received = recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
+int receive_data(socket_t client_socket, char *buf, size_t buf_size, size_t *out_len) {
+    if (buf == NULL || out_len == NULL || buf_size < 2) {
+        return 0;
+    }
+
+    int bytes_received = recv(client_socket, buf, (int)(buf_size - 1), 0);
     if (bytes_received == SOCKET_ERROR) {
         printf("recv failed. Error Code: %d\n", GET_SOCKET_ERROR());
         CLOSE_SOCKET(client_socket);
         return 0;
     }
-    buffer[bytes_received] = '\0';
-    printf("Received: %s\n", buffer);
+
+    if (bytes_received <= 0) {
+        *out_len = 0;
+        return 0;
+    }
+
+    buf[bytes_received] = '\0';
+    *out_len = (size_t)bytes_received;
+    printf("Received: %s\n", buf);
     return 1;
 }
 
-int send_response(socket_t client_socket) {
+int send_response(socket_t client_socket, ParserResult result) {
+    const char *resp = resp_500;
+
+    switch (result) {
+        case PARSE_OK:
+            resp = resp_200;
+            break;
+        case PARSE_BAD_REQUEST:
+            resp = resp_400;
+            break;
+        case PARSE_TOO_LARGE:
+            resp = resp_413;
+            break;
+        case PARSE_UNSUPPORTED_VERSION:
+            resp = resp_505;
+            break;
+        default:
+            resp = resp_500;
+            break;
+    }
+
     int bytes_sent = send(client_socket, resp, strlen(resp), 0);
     if (bytes_sent == SOCKET_ERROR) {
         printf("send failed. Error Code: %d\n", GET_SOCKET_ERROR());

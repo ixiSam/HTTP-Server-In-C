@@ -1,6 +1,9 @@
 #ifndef SERVER_H
 #define SERVER_H
 
+#include <stddef.h>
+#include "parser.h"
+
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -33,8 +36,8 @@ socket_t create_socket(void);
 int bind_socket(socket_t server_socket, int port);
 int listen_socket(socket_t server_socket);
 socket_t accept_connection(socket_t server_socket);
-int receive_data(socket_t client_socket);
-int send_response(socket_t client_socket);
+int receive_data(socket_t client_socket, char *buf, size_t buf_size, size_t *out_len);
+int send_response(socket_t client_socket, ParserResult result);
 void network_cleanup(socket_t server_socket);
 
 #endif // SERVER_H
